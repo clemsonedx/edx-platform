@@ -244,17 +244,23 @@ class @Problem
 
   # Scroll to problem metadata and next focus is problem input
   scroll_to_problem_meta: =>
-    @questionTitle = @$(".problem-header")
-    if @questionTitle.length > 0
+    questionTitle = @$(".problem-header")
+    if questionTitle.length > 0
       $('html, body').animate({
-        scrollTop: @questionTitle.offset().top
+        scrollTop: questionTitle.offset().top
       }, 500);
-      @questionTitle.focus()
+      questionTitle.focus()
+
+  focus_on_notification: (type) =>
+    notification = @$('.notification-'+type)
+    if notification.length > 0
+      notification.focus()
 
   focus_on_submit_notification: =>
-    @submitNotification = @$('.notification-submit')
-    if @submitNotification.length > 0
-      @submitNotification.focus()
+    @focus_on_notification('submit')
+
+  focus_on_hint_notification: =>
+    @focus_on_notification('hint')
 
   ###
   # 'submit_fd' uses FormData to allow file submissions in the 'problem_check' dispatch,
@@ -851,13 +857,10 @@ class @Problem
 #      ]
 #
       # Event the change?
-      debugger
       if response.success
-        @render(response.html)
+        @render(response.html, @focus_on_hint_notification)
         hint_container = @.$('.problem-hint')
         hint_container.attr('hint_index', response.hint_index)
       else
-        @gentle_alert response.success
+        @gentle_alert response.msg
 
-      # TODO: instead move focus to hint notification as callback in render
-      @$('.hint-button').focus()  # a11y focus on click, like the Check button
