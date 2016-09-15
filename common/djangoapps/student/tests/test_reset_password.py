@@ -252,6 +252,31 @@ class ResetPasswordTests(EventTestMixin, CacheIsolationTestCase):
         self.user = User.objects.get(pk=self.user.pk)
         self.assertTrue(self.user.is_active)
 
+    def test_non_matching_password_reset(self):
+        """
+        Tests that if we providing mismatching passwords
+
+        Given user is not active when we try to submit confirm password rest form, User is
+        provided helpful error message.
+        """
+        # Given that user is not active.
+        self.assertFalse(self.user.is_active)
+        url = reverse(
+            'password_reset_confirm',
+            kwargs={'uidb36': self.uidb36, 'token': self.token}
+        )
+        request_params = {'new_password1': 'password1', 'new_password2': 'password2'}
+        confirm_request = self.request_factory.post(url, data=request_params)
+
+        # Make a request and verify the error message in context.
+        confirm_request_resp = password_reset_confirm_wrapper(confirm_request, self.uidb36, self.token)
+        self.assertEqual(confirm_request_resp.status_code, 200)
+        self.assertTrue(confirm_request_resp.context_data['err_msg'], 'The text in both password fields did not match')
+
+        # Verify that user is not marked as active.
+        self.user = User.objects.get(pk=self.user.pk)
+        self.assertFalse(self.user.is_active)
+
     @patch('student.views.password_reset_confirm')
     @patch("openedx.core.djangoapps.site_configuration.helpers.get_value", fake_get_value)
     def test_reset_password_good_token_configuration_override(self, reset_confirm):
