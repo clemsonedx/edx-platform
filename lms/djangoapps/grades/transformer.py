@@ -2,7 +2,7 @@
 Grades Transformer
 """
 from django.test.client import RequestFactory
-from functools import reduce
+from functools import reduce as functools_reduce
 
 from courseware.model_data import FieldDataCache
 from courseware.module_render import get_module_for_descriptor
@@ -18,8 +18,8 @@ class GradesTransformer(BlockStructureTransformer):
 
     No runtime transformations are performed.
 
-    The following values are stored as xblock_fields on their respective blocks in the
-    block structure:
+    The following values are stored as xblock_fields on their respective blocks
+    in the block structure:
 
         due: (datetime) when the problem is due.
         format: (string) what type of problem it is
@@ -27,8 +27,8 @@ class GradesTransformer(BlockStructureTransformer):
         has_score: (boolean)
         weight: (numeric)
 
-    Additionally, the following value is calculated and stored as a transformer_block_field
-    for each block:
+    Additionally, the following value is calculated and stored as a
+    transformer_block_field for each block:
 
         max_score: (numeric)
     """
@@ -86,7 +86,7 @@ class GradesTransformer(BlockStructureTransformer):
             """
             return block_structure.get_transformer_block_field(block_key, cls, cls.EXPLICIT_GRADED_FIELD_NAME)
 
-        block_types_to_ignore = ('course', 'chapter', 'sequential')
+        block_types_to_ignore = {'course', 'chapter', 'sequential'}
 
         for block_key in block_structure.topological_traversal():
             if block_key.block_type in block_types_to_ignore:
@@ -101,11 +101,8 @@ class GradesTransformer(BlockStructureTransformer):
                         for parent in block_structure.get_parents(block_key)
                         if parent.block_type not in block_types_to_ignore
                     ]
-                    values_from_parents = [value for value in values_from_parents if not None]
-                    explicit_from_parents = (
-                        reduce(lambda x, y: x or y, values_from_parents, False)
-                        if values_from_parents else None
-                    )
+                    non_null_values_from_parents = [value for value in values_from_parents if not None]
+                    explicit_from_parents = functools_reduce(lambda x, y: x or y, non_null_values_from_parents, None)
                     _set_field(block_key, explicit_from_parents)
 
     @classmethod
@@ -128,8 +125,8 @@ class GradesTransformer(BlockStructureTransformer):
     @staticmethod
     def _iter_scorable_xmodules(block_structure):
         """
-        Loop through all the blocks locators in the block structure, and retrieve
-        the module (XModule or XBlock) associated with that locator.
+        Loop through all the blocks locators in the block structure, and
+        retrieve the module (XModule or XBlock) associated with that locator.
 
         For implementation reasons, we need to pull the max_score from the
         XModule, even though the data is not user specific.  Here we bind the
