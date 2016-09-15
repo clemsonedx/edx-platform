@@ -1774,6 +1774,7 @@ def create_account_with_params(request, params):
             user.email == running_pipeline['kwargs'].get('details', {}).get('email')
         )
     )
+
     if send_email:
         dest_addr = user.email
         context = {
@@ -1798,7 +1799,7 @@ def create_account_with_params(request, params):
                            '-' * 80 + '\n\n' + message)
                 mail.send_mail(subject, message, from_address, [dest_addr], fail_silently=False)
             else:
-                user.email_user(subject, message, from_address)
+                test = user.email_user(subject, message, from_address)
         except Exception:  # pylint: disable=broad-except
             log.error(
                 u'Unable to send activation email to user from "%s" to "%s"',

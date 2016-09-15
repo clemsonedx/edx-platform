@@ -13,6 +13,7 @@ MEDIA_ROOT = "/edx/var/edxapp/uploads"
 DEBUG = True
 USE_I18N = True
 DEFAULT_TEMPLATE_ENGINE['OPTIONS']['debug'] = DEBUG
+SITE_NAME = '130.127.55.232:8001'
 HTTPS = 'off'
 
 ################################ LOGGERS ######################################
@@ -26,11 +27,11 @@ for pkg_name in ['track.contexts', 'track.middleware', 'dd.dogapi']:
 
 ################################ EMAIL ########################################
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 ################################# LMS INTEGRATION #############################
 
-LMS_BASE = "localhost:8000"
+LMS_BASE = "130.127.55.232:8000"
 LMS_ROOT_URL = "http://{}".format(LMS_BASE)
 FEATURES['PREVIEW_LMS_BASE'] = "preview." + LMS_BASE
 

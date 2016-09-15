@@ -97,8 +97,8 @@ from xmodule.mixin import LicenseMixin
 # Dummy secret key for dev/test
 SECRET_KEY = 'dev key'
 
-STUDIO_NAME = "Studio"
-STUDIO_SHORT_NAME = "Studio"
+STUDIO_NAME = "Clemson University CITI Group Course Studio"
+STUDIO_SHORT_NAME = "CITI Studio"
 FEATURES = {
     'GITHUB_PUSH': False,
 
@@ -111,7 +111,7 @@ FEATURES = {
     'AUTH_USE_CERTIFICATES': False,
 
     # email address for studio staff (eg to request course creation)
-    'STUDIO_REQUEST_EMAIL': '',
+    'STUDIO_REQUEST_EMAIL': 'clemsonedx@gmail.com',
 
     # Segment - must explicitly turn it on for production
     'CMS_SEGMENT_KEY': None,
@@ -124,7 +124,7 @@ FEATURES = {
 
     # If set to True, new Studio users won't be able to author courses unless
     # edX has explicitly added them to the course creator group.
-    'ENABLE_CREATOR_GROUP': False,
+    'ENABLE_CREATOR_GROUP': True,
 
     # whether to use password policy enforcement or not
     'ENFORCE_PASSWORD_POLICY': False,
@@ -485,13 +485,13 @@ HTTPS = 'on'
 ROOT_URLCONF = 'cms.urls'
 
 # Email
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = 25
 EMAIL_USE_TLS = False
 EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''
-DEFAULT_FROM_EMAIL = 'registration@example.com'
+DEFAULT_FROM_EMAIL = 'clemsonedx@gmail.com'
 DEFAULT_FEEDBACK_EMAIL = 'feedback@example.com'
 SERVER_EMAIL = 'devops@example.com'
 ADMINS = ()

@@ -13,13 +13,13 @@ MEDIA_ROOT = "/edx/var/edxapp/uploads"
 DEBUG = True
 USE_I18N = True
 DEFAULT_TEMPLATE_ENGINE['OPTIONS']['debug'] = True
-SITE_NAME = 'localhost:8000'
+SITE_NAME = '130.127.55.232:8000'
 PLATFORM_NAME = ENV_TOKENS.get('PLATFORM_NAME', 'Devstack')
 # By default don't use a worker, execute tasks as if they were local functions
 CELERY_ALWAYS_EAGER = True
 HTTPS = 'off'
 
-LMS_ROOT_URL = 'http://localhost:8000'
+LMS_ROOT_URL = 'http://130.127.55.232:8000'
 
 ################################ LOGGERS ######################################
 
@@ -37,7 +37,7 @@ for log_name, log_level in LOG_OVERRIDES:
 
 ################################ EMAIL ########################################
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 ########################## ANALYTICS TESTING ########################
 
@@ -215,7 +215,7 @@ if FEATURES.get('ENABLE_THIRD_PARTY_AUTH') and 'third_party_auth.dummy.DummyBack
     AUTHENTICATION_BACKENDS = ['third_party_auth.dummy.DummyBackend'] + list(AUTHENTICATION_BACKENDS)
 
 ############## ECOMMERCE API CONFIGURATION SETTINGS ###############
-ECOMMERCE_PUBLIC_URL_ROOT = "http://localhost:8002"
+ECOMMERCE_PUBLIC_URL_ROOT = "http://130.127.55.232:8002"
 
 ###################### Cross-domain requests ######################
 FEATURES['ENABLE_CORS_HEADERS'] = True
