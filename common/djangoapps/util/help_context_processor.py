@@ -54,7 +54,7 @@ def common_doc_url(request, config_file_object):  # pylint: disable=unused-argum
                               section_name, option)
             return config_file_object.get(section_name, default_option)
 
-        def get_doc_url():
+        def get_doc_url(doc_base_url=None):
             """
             Returns:
                 The URL for the documentation
@@ -67,10 +67,11 @@ def common_doc_url(request, config_file_object):  # pylint: disable=unused-argum
             # as the base of documentation link URLs. If it is not set, the
             # function reads the base of the documentation link URLs from
             # the .ini configuration file, lms_config.ini or cms_config.ini.
-            if settings.DOC_LINK_BASE_URL:
-                doc_base_url = settings.DOC_LINK_BASE_URL
-            else:
-                doc_base_url = config_file_object.get("help_settings", "url_base")
+            if doc_base_url is None:
+                if settings.DOC_LINK_BASE_URL:
+                    doc_base_url = settings.DOC_LINK_BASE_URL
+                else:
+                    doc_base_url = config_file_object.get("help_settings", "url_base")
 
             # Construct and return the URL for the documentation link.
             return "{url_base}/{language}/{version}/{page_path}".format(

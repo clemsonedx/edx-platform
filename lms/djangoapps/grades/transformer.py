@@ -2,10 +2,11 @@
 Grades Transformer
 """
 from django.test.client import RequestFactory
+from functools import reduce
 
 from courseware.model_data import FieldDataCache
 from courseware.module_render import get_module_for_descriptor
-from lms.djangoapps.course_blocks.transformers.utils import collect_unioned_set_field
+from lms.djangoapps.course_blocks.transformers.utils import collect_unioned_set_field, get_field_on_block
 from openedx.core.lib.block_structure.transformer import BlockStructureTransformer
 from openedx.core.djangoapps.util.user_utils import SystemUser
 
@@ -31,8 +32,10 @@ class GradesTransformer(BlockStructureTransformer):
 
         max_score: (numeric)
     """
-    VERSION = 3
+    VERSION = 4
     FIELDS_TO_COLLECT = [u'due', u'format', u'graded', u'has_score', u'weight', u'course_version', u'subtree_edited_on']
+
+    EXPLICIT_GRADED_FIELD_NAME = 'explicit_graded'
 
     @classmethod
     def name(cls):
@@ -56,12 +59,54 @@ class GradesTransformer(BlockStructureTransformer):
             merged_field_name='subsections',
             filter_by=lambda block_key: block_key.block_type == 'sequential',
         )
+        cls._collect_explicit_graded(block_structure)
 
     def transform(self, block_structure, usage_context):
         """
         Perform no transformations.
         """
         pass
+
+    @classmethod
+    def _collect_explicit_graded(cls, block_structure):
+        """
+        Collect the 'explicit_graded' field for every block.
+        """
+        def _set_field(block_key, field_value):
+            """
+            Sets the explicit graded field to the given value for the
+            given block.
+            """
+            block_structure.set_transformer_block_field(block_key, cls, cls.EXPLICIT_GRADED_FIELD_NAME, field_value)
+
+        def _get_field(block_key):
+            """
+            Gets the explicit graded field to the given value for the
+            given block.
+            """
+            return block_structure.get_transformer_block_field(block_key, cls, cls.EXPLICIT_GRADED_FIELD_NAME)
+
+        block_types_to_ignore = ('course', 'chapter', 'sequential')
+
+        for block_key in block_structure.topological_traversal():
+            if block_key.block_type in block_types_to_ignore:
+                _set_field(block_key, None)
+            else:
+                explicit_field_on_block = get_field_on_block(block_structure.get_xblock(block_key), 'graded')
+                if explicit_field_on_block is not None:
+                    _set_field(block_key, explicit_field_on_block)
+                else:
+                    values_from_parents = [
+                        _get_field(parent)
+                        for parent in block_structure.get_parents(block_key)
+                        if parent.block_type not in block_types_to_ignore
+                    ]
+                    values_from_parents = [value for value in values_from_parents if not None]
+                    explicit_from_parents = (
+                        reduce(lambda x, y: x or y, values_from_parents, False)
+                        if values_from_parents else None
+                    )
+                    _set_field(block_key, explicit_from_parents)
 
     @classmethod
     def _collect_max_scores(cls, block_structure):
